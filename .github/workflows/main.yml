@@ -10,7 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     container: rootproject/root:6.32.04-ubuntu24.04
     steps:
+      - name: checkout repository
+        uses: actions/checkout@v6
+        
       - name: build
         run: |
           COMPILER=$(root-config --cxx)
+          FLAGS=$(root-config --cflags --libs)
           $COMPILER -g -O3 -Wall -Wextra -Wpedantic -o skim skim.cxx
