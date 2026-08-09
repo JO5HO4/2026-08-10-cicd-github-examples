@@ -5,25 +5,30 @@ jobs:
   build_skim:
     runs-on: ubuntu-latest
     container: rootproject/root:${{ matrix.version }}
-    continue-on-error: ${{ matrix.allow_failure }}
     strategy:
       matrix:
         version: [6.32.04-ubuntu24.04, latest]
-        allow_failure: [false, true]
     steps:
       - name: checkout repository
         uses: actions/checkout@v6
-
       - name: build
         run: |
           COMPILER=$(root-config --cxx)
           FLAGS=$(root-config --cflags --libs)
           $COMPILER -g -O3 -Wall -Wextra -Wpedantic -o skim skim.cxx $FLAGS
+      - uses: actions/upload-artifact@v7
+        with:
+          name: skim${{ matrix.version }}
+          path: skim
+          
   skim:
     needs: build_skim
     runs-on: ubuntu-latest
     container: rootproject/root:6.32.04-ubuntu24.04
     steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: skim6.32.04-ubuntu24.04
       - name: skim
         run: |
           chmod +x ./skim
