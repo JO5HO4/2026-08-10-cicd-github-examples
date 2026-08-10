@@ -1,5 +1,6 @@
 name: example
-on: push 
+on: push
+
 jobs:
   greeting:
     runs-on: ubuntu-latest
@@ -11,8 +12,22 @@ jobs:
     container: rootproject/root:6.32.04-ubuntu24.04
     steps:
       - name: checkout repository
-        uses: actions/checkout@v6    
+        uses: actions/checkout@v6
+
       - name: build
+        run: |
+          COMPILER=$(root-config --cxx)
+          FLAGS=$(root-config --cflags --libs)
+          $COMPILER -g -O3 -Wall -Wextra -Wpedantic -o skim skim.cxx $FLAGS
+
+  build_skim_latest:
+    runs-on: ubuntu-latest
+    container: rootproject/root:latest
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v6
+
+      - name: latest
         run: |
           COMPILER=$(root-config --cxx)
           FLAGS=$(root-config --cflags --libs)
