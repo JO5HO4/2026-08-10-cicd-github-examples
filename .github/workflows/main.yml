@@ -4,34 +4,64 @@ on: push
 jobs:
   build_skim:
     runs-on: ubuntu-latest
-    container: rootproject/root:${{ matrix.version }}
-    strategy:
-      matrix:
-        version: [6.32.04-ubuntu24.04, latest]
+    container: rootproject/root:6.32.04-ubuntu24.04
     steps:
       - name: checkout repository
         uses: actions/checkout@v6
+
       - name: build
         run: |
           COMPILER=$(root-config --cxx)
           FLAGS=$(root-config --cflags --libs)
           $COMPILER -g -O3 -Wall -Wextra -Wpedantic -o skim skim.cxx $FLAGS
+
       - uses: actions/upload-artifact@v7
         with:
-          name: skim${{ matrix.version }}
+          name: skim
           path: skim
-          
+
   skim:
     needs: build_skim
     runs-on: ubuntu-latest
     container: rootproject/root:6.32.04-ubuntu24.04
     steps:
+      - name: checkout repository
+        uses: actions/checkout@v6
+        
       - uses: actions/download-artifact@v8
         with:
-          name: skim6.32.04-ubuntu24.04
+          name: skim
+          
       - name: install XRootD client
         run: apt-get update && apt-get install -y xrootd-client
+        
       - name: skim
         run: |
           chmod +x ./skim
           ./skim root://eospublic.cern.ch//eos/root-eos/HiggsTauTauReduced/GluGluToHToTauTau.root skim_ggH.root 19.6 11467.0 0.1
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: skim_ggH
+          path: skim_ggH.root
+          retention-days: 7
+
+  plot:
+    needs: skim
+    runs-on: ubuntu-latest
+    container: rootproject/root:6.32.04-ubuntu24.04
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: skim_ggH
+
+      - name: plot
+        run: python3 histograms.py skim_ggH.root ggH hist_ggH.root
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: histograms
+          path: hist_ggH.root
