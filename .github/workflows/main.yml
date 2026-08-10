@@ -65,3 +65,16 @@ jobs:
         with:
           name: histograms
           path: hist_ggH.root
+
+  test:
+    runs-on: ubuntu-latest
+    container: rootproject/root:6.32.04-ubuntu24.04
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v6
+
+      - name: install pytest
+        run: pip install pytest
+
+      - name: run tests
+        run: pytest -v
