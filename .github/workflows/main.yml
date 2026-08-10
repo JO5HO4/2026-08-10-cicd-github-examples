@@ -8,6 +8,7 @@ jobs:
 
   build_skim:
     runs-on: ubuntu-latest
+    container: rootproject/root:6.32.04-ubuntu24.04
     steps:
       - name: build
         run: |
