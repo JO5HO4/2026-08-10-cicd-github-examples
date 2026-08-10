@@ -74,7 +74,13 @@ jobs:
         uses: actions/checkout@v6
 
       - name: install pytest
-        run: pip install pytest
+        run: apt-get update && apt-get install -y python3-pytest
 
       - name: run tests
-        run: pytest -v
+        run: pytest -v --junitxml=pytest.xml
+
+      - name: Create test summary
+        uses: test-summary/action@v1
+        with:
+          paths: pytest.xml
+        if: always()
