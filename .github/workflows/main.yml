@@ -1,7 +1,16 @@
 name: example
-on: push
+on: push 
 jobs:
   greeting:
     runs-on: ubuntu-latest
     steps:
       - run: echo hello world
+
+  build_skim:
+    runs-on: ubuntu-latest
+    steps:
+      - name: build
+        run: |
+          COMPILER=$(root-config --cxx)
+          FLAGS=$(root-config --cflags --libs)
+          $COMPILER -g -O3 -Wall -Wextra -Wpedantic -o skim skim.cxx $FLAGS
